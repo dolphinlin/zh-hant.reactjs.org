@@ -5,24 +5,31 @@ permalink: docs/render-props.html
 ---
 
 The term ["render prop"](https://cdb.reacttraining.com/use-a-render-prop-50de598f11ce) refers to a technique for sharing code between React components using a prop whose value is a function.
+["render prop"](https://cdb.reacttraining.com/use-a-render-prop-50de598f11ce) 一詞指的是一種在 React Component 之間使用一個值為函式的 props 來共享代碼的技術
 
 A component with a render prop takes a function that returns a React element and calls it instead of implementing its own render logic.
+具有 render props 的 Component 接受一個函式，此函式回傳一個 React element 並且呼叫他而不是實作它自己的渲染邏輯。
 
 ```jsx
 <DataProvider render={data => (
-  <h1>Hello {data.target}</h1>
+  <h1>哈囉～ {data.target}</h1>
 )}/>
 ```
 
 Libraries that use render props include [React Router](https://reacttraining.com/react-router/web/api/Route/render-func) and [Downshift](https://github.com/paypal/downshift).
+其中使用 render prop 技術的函式庫有 [React Router](https://reacttraining.com/react-router/web/api/Route/render-func) 和 [Downshift](https://github.com/paypal/downshift)。
 
 In this document, we’ll discuss why render props are useful, and how to write your own.
+在這裡我們將會討論為何 render props 是有用的，以及如何撰寫一個有 render props 的 Component。
 
 ## Use Render Props for Cross-Cutting Concerns {#use-render-props-for-cross-cutting-concerns}
+## 使用 Render Props 解決橫切關注點（Cross-Cutting Concerns） {#use-render-props-for-cross-cutting-concerns}
 
 Components are the primary unit of code reuse in React, but it's not always obvious how to share the state or behavior that one component encapsulates to other components that need that same state.
+Component 是在 React 中的 code reuse 最主要的單位，但是如何共享一個 component 封裝到其他需要相同 state 或行為總是不容易的。
 
 For example, the following component tracks the mouse position in a web app:
+舉例來說，下列的 component 在網頁追蹤滑鼠位置：
 
 ```js
 class MouseTracker extends React.Component {
@@ -42,8 +49,8 @@ class MouseTracker extends React.Component {
   render() {
     return (
       <div style={{ height: '100%' }} onMouseMove={this.handleMouseMove}>
-        <h1>Move the mouse around!</h1>
-        <p>The current mouse position is ({this.state.x}, {this.state.y})</p>
+        <h1>移動滑鼠!</h1>
+        <p>現在滑鼠的所在位置為 ({this.state.x}, {this.state.y})</p>
       </div>
     );
   }
@@ -51,8 +58,10 @@ class MouseTracker extends React.Component {
 ```
 
 As the cursor moves around the screen, the component displays its (x, y) coordinates in a `<p>`.
+當游標在螢幕上移動時，此 component 會在 `<p>` 中顯示它的 （x，y）座標。
 
 Now the question is: How can we reuse this behavior in another component? In other words, if another component needs to know about the cursor position, can we encapsulate that behavior so that we can easily share it with that component?
+現在的問題是：我們該如何在另外一個 component 重複使用這個行為？換句話說，如果另外一個 component 需要滑鼠位置，我們是否能這封裝此行為，以便我們與其他 component 共享它。
 
 Since components are the basic unit of code reuse in React, let's try refactoring the code a bit to use a `<Mouse>` component that encapsulates the behavior we need to reuse elsewhere.
 
