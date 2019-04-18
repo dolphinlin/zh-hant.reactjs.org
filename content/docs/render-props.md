@@ -20,7 +20,7 @@ Libraries that use render props include [React Router](https://reacttraining.com
 其中使用 render prop 技術的函式庫有 [React Router](https://reacttraining.com/react-router/web/api/Route/render-func) 和 [Downshift](https://github.com/paypal/downshift)。
 
 In this document, we’ll discuss why render props are useful, and how to write your own.
-在這裡我們將會討論為何 render props 是有用的，以及如何撰寫一個有 render props 的 Component。
+在這裡我們將會討論為何 render props 是有用的，以及如何撰寫一個擁有 render props 的 Component。
 
 ## Use Render Props for Cross-Cutting Concerns {#use-render-props-for-cross-cutting-concerns}
 ## 使用 Render Props 解決橫切關注點（Cross-Cutting Concerns） {#use-render-props-for-cross-cutting-concerns}
@@ -64,6 +64,7 @@ Now the question is: How can we reuse this behavior in another component? In oth
 現在的問題是：我們該如何在另外一個 component 重複使用這個行為？換句話說，如果另外一個 component 需要滑鼠位置，我們是否能這封裝此行為，以便我們與其他 component 共享它。
 
 Since components are the basic unit of code reuse in React, let's try refactoring the code a bit to use a `<Mouse>` component that encapsulates the behavior we need to reuse elsewhere.
+由於 component 是 React 中最基礎複用單位，現在讓我們來嘗試重構一部分的程式碼使其能夠在 `<Mouse>` component 當中封裝我們需要共享的行為。
 
 ```js
 // The <Mouse> component encapsulates the behavior we need...
@@ -85,7 +86,7 @@ class Mouse extends React.Component {
     return (
       <div style={{ height: '100%' }} onMouseMove={this.handleMouseMove}>
 
-        {/* ...but how do we render something other than a <p>? */}
+        {/* ...但是我們該如何 render <p> 以外的東西? */}
         <p>The current mouse position is ({this.state.x}, {this.state.y})</p>
       </div>
     );
@@ -105,10 +106,13 @@ class MouseTracker extends React.Component {
 ```
 
 Now the `<Mouse>` component encapsulates all behavior associated with listening for `mousemove` events and storing the (x, y) position of the cursor, but it's not yet truly reusable.
+現在 `<Mouse>` component 封裝了所有關於監聽 `mousemove` 事件和儲存滑鼠位置 (x, y) 的行為，但是他仍然不是真正的 reuseable。
 
 For example, let's say we have a `<Cat>` component that renders the image of a cat chasing the mouse around the screen. We might use a `<Cat mouse={{ x, y }}>` prop to tell the component the coordinates of the mouse so it knows where to position the image on the screen.
+舉例來說，假設我們有一個 `<Cat>` component，他可以呈現一張在螢幕上追著游標的貓的圖片。我們或許使用 `<Cat mouse={{ x, y }}>` prop 來告訴這個 component 滑鼠的位置以便於讓它知道應該要顯示在螢幕的哪個位置。
 
 As a first pass, you might try rendering the `<Cat>` *inside `<Mouse>`'s `render` method*, like this:
+首先，你或許會想要像這樣，嘗試在 `<Cat>` 內部 render `<Mouse>` component:
 
 ```js
 class Cat extends React.Component {
@@ -143,6 +147,9 @@ class MouseWithCat extends React.Component {
           we would need to create a separate <MouseWithSomethingElse>
           component every time we need to use it, so <MouseWithCat>
           isn't really reusable yet.
+          我們可以在這邊換掉 <p> 的 <Cat> ...
+          但是接下來我們需要建立一個單獨的 <MouseWithSomethingElse>，
+          每次我們對它使用時，<MouseWithCat> 並不是真正可以重複使用的。
         */}
         <Cat mouse={this.state} />
       </div>
@@ -154,7 +161,7 @@ class MouseTracker extends React.Component {
   render() {
     return (
       <div>
-        <h1>Move the mouse around!</h1>
+        <h1>移動你的滑鼠!</h1>
         <MouseWithCat />
       </div>
     );
@@ -163,6 +170,7 @@ class MouseTracker extends React.Component {
 ```
 
 This approach will work for our specific use case, but we haven't achieved the objective of truly encapsulating the behavior in a reusable way. Now, every time we want the mouse position for a different use case, we have to create a new component (i.e. essentially another `<MouseWithCat>`) that renders something specifically for that use case.
+這種方法適用於我們的特定使用者情境，但是我們還沒有達到可以重複使用的方式封裝行為的目標。現在，每當我們想要滑鼠位置使用在不同的使用情境時，我們必須建立一個新的 component （本質上就是另一個 `<MouseWithCat>`），它專門為該使用情境呈現一些東西。
 
 Here's where the render prop comes in: Instead of hard-coding a `<Cat>` inside a `<Mouse>` component, and effectively changing its rendered output, we can provide `<Mouse>` with a function prop that it uses to dynamically determine what to render–a render prop.
 
